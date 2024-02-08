@@ -78,7 +78,14 @@ function draw() {
   push();
   stroke(17, 7, 7);
   strokeWeight(2);
-  ellipse(height / 2, width / 2, d1, d1);
+  fill(0, 0);
+  ellipse(width / 2, height / 2, d1 / 2.5, d1 / 5);
+  ellipse(width / 2, height / 2, d1 / 5, d1 / 2.5);
+  ellipse(width / 2, height / 2, d1 / 2.5, d1 / 3);
+  ellipse(width / 2, height / 2, d1 / 3, d1 / 2.5);
+  ellipse(width / 2, height / 2, d1 / 2.5, d1 / 6);
+  ellipse(width / 2, height / 2, d1 / 6, d1 / 2.5);
+
   line(width / 2, height / 2 - d1 / 5, width / 2, height / 2 + d1 / 5);
   line(width / 2 - d1 / 5, height / 2, width / 2 + d1 / 5, height / 2);
   pop();
