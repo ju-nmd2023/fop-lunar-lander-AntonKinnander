@@ -3,7 +3,7 @@ const radius = Math.sqrt(0.5);
 const dotSize = 0.004;
 const PHI = (1 + Math.sqrt(5)) / 2;
 const fillCol = [208, 103, 82];
-const bgCol = [16, 6, 6];
+const bgCol = [17, 7, 7];
 
 function setup() {
   size = max(windowWidth, windowHeight);
@@ -32,6 +32,7 @@ function drawStars() {
   }
 }
 function drawMoon() {
+  //generate random moon Phase - can only land on bright side
   for (let i = 0; i < 9; i++) {
     ellipse(0, 0, (height / 3) * f, height / 3);
   }
@@ -59,6 +60,7 @@ function draw() {
   // ellipse(0, 0, height / 3); nh
   fill(bgCol);
   //Draw ellipse multiple lines
+  strokeWeight(2);
   ellipse(0, 0, height / 3);
   // ellipse(0, 0, height / 3, height / 4);
   // ellipse(0, 0, height / 3, height / 5);
