@@ -74,4 +74,12 @@ function draw() {
   arc(phasex, phasey, widthPhase - 2, heightPhase + 1, PI / 2, (3 * PI) / 2);
   fill(color4);
   arc(phasex, phasey, widthPhase - 2, heightPhase + 1, (3 * PI) / 2, PI / 2);
+
+  push();
+  stroke(17, 7, 7);
+  strokeWeight(2);
+  ellipse(height / 2, width / 2, d1, d1);
+  line(width / 2, height / 2 - d1 / 5, width / 2, height / 2 + d1 / 5);
+  line(width / 2 - d1 / 5, height / 2, width / 2 + d1 / 5, height / 2);
+  pop();
 }

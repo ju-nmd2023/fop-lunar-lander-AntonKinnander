@@ -32,26 +32,23 @@ function drawStars() {
   }
 }
 function drawMoon() {
-  //generate random moon Phase - can only land on bright side
-  for (let i = 0; i < 9; i++) {
-    ellipse(0, 0, (height / 3) * f, height / 3);
+  for (let i = 2; i < 10; i++) {
+    let f = 9 / Math.pow(i, -1);
+    fill(0, 0);
+    ellipse(0, 0, height / 9 - f, height / f - f * 2.9);
+    ellipse(0, 0, height / 9 - f, height / f - f);
   }
-
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //ROSEGARDEN
-  //Jag bjud 90%
-  //ROSEGARDEN
 }
+
+//Looks cool
+// function drawMoon() {
+//   for (let i = 0; i < 10; i++) {
+//     let f = 3 / Math.pow(i, -2);
+//     fill(0, 0);
+//     ellipse(0, 0, height / 3 - f, height / f - f);
+//     ellipse(0, 0, height / 3 - f, height / f - f);
+//   }
+// }
 
 function draw() {
   push();
@@ -61,15 +58,9 @@ function draw() {
   fill(bgCol);
   //Draw ellipse multiple lines
   strokeWeight(2);
-  ellipse(0, 0, height / 3);
-  // ellipse(0, 0, height / 3, height / 4);
-  // ellipse(0, 0, height / 3, height / 5);
-  // ellipse(0, 0, height / 3, height / 6);
-  // ellipse(0, 0, height / 3, height / 7);
-  // ellipse(0, 0, height / 3, height / 8);
-  // ellipse(0, 0, height / 3, height / 9);
-  // ellipse(0, 0, height / 3, height / 10);
-  // ellipse(0, 0, height / 3, height / 11);
+  drawMoon();
   pop();
+  push();
   drawStars();
+  pop();
 }
