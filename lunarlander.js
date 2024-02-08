@@ -1,13 +1,4 @@
-/*
-  Tutorial by me :)
-    https://www.youtube.com/watch?v=RrSOv9FH6uo
-
-  inspiration + explanation for golden ratio:
-    Numberphile - The Golden Ratio (why it is so irrational)
-    https://www.youtube.com/watch?v=sj8Sg8qnjOg
-*/
-
-const size = max(windowWidth, windowHeight);
+const size = Math.max(windowWidth, windowHeight);
 const radius = Math.sqrt(0.5);
 const dotSize = 0.004;
 const PHI = (1 + Math.sqrt(5)) / 2;
@@ -22,7 +13,6 @@ function setup() {
 
 //altered and added to a tutorial by creative coding youtube
 function drawStars() {
-  noLoop();
   scale(windowWidth, windowHeight);
 
   fill(fillCol);
@@ -44,8 +34,10 @@ function drawStars() {
 function draw() {
   push();
   translate(size / 2, size / 2);
-  fill("pink");
-  ellipse(0, 0, 100);
+  stroke(fillCol);
+  fill(bgCol);
+  // ellipse(0, 0, height / 3);
+  sphere(0, 0, height / 3);
   pop();
   drawStars();
 }
