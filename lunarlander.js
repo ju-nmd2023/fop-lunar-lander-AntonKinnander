@@ -1,43 +1,86 @@
-let size;
-const radius = Math.sqrt(0.5);
-const dotSize = 0.004;
-const PHI = (1 + Math.sqrt(5)) / 2;
+let zoom = 500;
 const fillCol = [208, 103, 82];
 const bgCol = [17, 7, 7];
 
+const radius = Math.sqrt(0.5);
+const starSize = 0.004;
+const PHI = (1 + Math.sqrt(5)) / 2;
+let vpFactor;
+
+let stars = [];
+let starsDrawn = false;
+
 function setup() {
-  size = max(windowWidth, windowHeight);
-  createCanvas(size, size);
+  vpFactor = max(windowWidth, windowHeight) / min(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight);
   noStroke();
   background(bgCol);
 }
-
-//altered and added to a tutorial by creative coding youtube
+//Inspiration from  creative coding youtube-
+//Using Garrits code from weekly challenge 3
 function drawStars() {
-  scale(size, size);
+  if (!starsDrawn) {
+    scale(width, height);
+    fill(fillCol);
+    const count = 717;
+    for (let i = 1; i < count; i++) {
+      const f = i / count;
+      const angle = i * PHI;
+      const dist = f * radius;
+      const star = {
+        x: 0.5 + Math.random() / 10 + cos(angle * TWO_PI) * dist,
+        y: 0.5 + Math.random() / 10 + sin(angle * TWO_PI) * dist,
+        r: f * starSize * (Math.random() * (0.8 + Math.random())),
+        alpha: Math.random(),
+      };
 
-  fill(fillCol);
+      stars.push(star);
+    }
+  }
 
-  const count = 600;
-  for (let i = 1; i < count; i++) {
-    noLoop();
-    const f = i / count;
-    const angle = i * PHI;
-    const dist = f * radius;
-    let x = 0.5 + Math.random() / 10 + cos(angle * TWO_PI) * dist;
-    const y = 0.5 + Math.random() / 10 + sin(angle * TWO_PI) * dist;
-    let r = f * dotSize * (Math.random() * (0.8 + Math.random()));
+  //Used to prevent more stars from being drawn
+  starsDrawn = true;
 
-    circle(x, y, r);
+  for (let star of stars) {
+    fill(fillCol, Math.abs(Math.sin(star.alpha)) * 255);
+    if (width < height) {
+      ellipse(star.x, star.y, star.r, star.r / vpFactor);
+    } else {
+      ellipse(star.x, star.y, star.r / vpFactor, star.r);
+    }
   }
 }
-function drawMoon() {
+
+function drawMoon(zoom) {
+  scale(max(width, height) / zoom);
+  let d = 752;
+  strokeWeight(height / 4000);
+  //No stars on the moon
+  push();
+  fill(bgCol);
+  ellipse(0, 0, d / 9);
+  pop();
+  fill(0, 0);
+  for (let i = 0; i < 3; i++) {
+    let f = 9 / Math.pow(i, -2);
+    ellipse(0, 0, d / 9 - f, d / f - f * 2.9);
+    ellipse(0, 0, d / 9 - f, d / f - f);
+  }
+}
+
+function drawRocket() {
+  push();
+  noStroke();
+  ellipse(0, height / 9 - 9 / Math.pow(12, -1), height / 10);
+  ellipse(0, height / 9 - 9 / Math.pow(16, -1), height / 10, height / 6);
+
   for (let i = 2; i < 10; i++) {
     let f = 9 / Math.pow(i, -1);
     fill(0, 0);
     ellipse(0, 0, height / 9 - f, height / f - f * 2.9);
     ellipse(0, 0, height / 9 - f, height / f - f);
   }
+  pop();
 }
 
 //Looks cool
@@ -52,13 +95,14 @@ function drawMoon() {
 
 function draw() {
   push();
-  translate(size / 2, size / 2);
+  translate(width / 2, height / 2);
   stroke(fillCol);
   // ellipse(0, 0, height / 3); nh
   fill(bgCol);
   //Draw ellipse multiple lines
   strokeWeight(2);
-  drawMoon();
+  drawRocket();
+  drawMoon(zoom);
   pop();
   push();
   drawStars();
