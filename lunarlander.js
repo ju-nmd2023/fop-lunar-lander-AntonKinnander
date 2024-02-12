@@ -10,37 +10,38 @@ let vpFactor;
 let stars = [];
 let starsDrawn = false;
 
+let verticalSpeed = 0;
+let horizontalspeed = 0;
+
 function setup() {
   vpFactor = max(windowWidth, windowHeight) / min(windowWidth, windowHeight);
   createCanvas(windowWidth, windowHeight);
   noStroke();
+  generateStars();
   background(bgCol);
 }
 //Inspiration from  creative coding youtube-
 //Using Garrits code from weekly challenge 3
-function drawStars() {
-  if (!starsDrawn) {
-    scale(width, height);
-    fill(fillCol);
-    const count = 717;
-    for (let i = 1; i < count; i++) {
-      const f = i / count;
-      const angle = i * PHI;
-      const dist = f * radius;
-      const star = {
-        x: 0.5 + Math.random() / 10 + cos(angle * TWO_PI) * dist,
-        y: 0.5 + Math.random() / 10 + sin(angle * TWO_PI) * dist,
-        r: f * starSize * (Math.random() * (0.8 + Math.random())),
-        alpha: Math.random(),
-      };
 
-      stars.push(star);
-    }
+function generateStars() {
+  fill(fillCol);
+  const count = 717;
+  for (let i = 1; i < count; i++) {
+    const f = i / count;
+    const angle = i * PHI;
+    const dist = f * radius;
+    const star = {
+      x: 0.5 + Math.random() / 10 + cos(angle * TWO_PI) * dist,
+      y: 0.5 + Math.random() / 10 + sin(angle * TWO_PI) * dist,
+      r: f * starSize * (Math.random() * (0.8 + Math.random())),
+      alpha: Math.random(),
+    };
+    stars.push(star);
   }
+}
 
-  //Used to prevent more stars from being drawn
-  starsDrawn = true;
-
+function drawStars() {
+  scale(width, height);
   for (let star of stars) {
     fill(fillCol, Math.abs(Math.sin(star.alpha)) * 255);
     if (width < height) {
@@ -94,6 +95,7 @@ function drawRocket() {
 // }
 
 function draw() {
+  background(bgCol);
   push();
   translate(width / 2, height / 2);
   stroke(fillCol);
@@ -102,9 +104,17 @@ function draw() {
   //Draw ellipse multiple lines
   strokeWeight(2);
   drawRocket();
+  horizontalspeed += 0.02;
+  rotate(horizontalspeed);
   drawMoon(zoom);
   pop();
   push();
+  translate();
+
+  push();
+  rotate(horizontalspeed);
+  translate(0, 0);
   drawStars();
+  pop();
   pop();
 }
