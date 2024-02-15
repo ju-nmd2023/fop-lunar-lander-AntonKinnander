@@ -97,7 +97,7 @@ function drawRocket() {
 function draw() {
   background(bgCol);
   push();
-  translate(width / 2, height / 2);
+  translate(width / 2, height / 1.5);
   stroke(fillCol);
   // ellipse(0, 0, height / 3); nh
   fill(bgCol);
@@ -112,7 +112,6 @@ function draw() {
   translate();
 
   push();
-  rotate(horizontalspeed);
   translate(0, 0);
   drawStars();
   pop();
