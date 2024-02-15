@@ -1,6 +1,6 @@
 let zoom = 500;
 const fillCol = [208, 103, 82];
-const bgCol = [17, 7, 7];
+let bgCol = [17, 7, 7];
 
 const radius = Math.sqrt(0.5);
 const starSize = 0.004;
