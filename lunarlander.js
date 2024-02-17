@@ -81,23 +81,26 @@ function drawRocket() {
   }
   pop();
 }
-
 function keyReleased() {
-  if (keyIsDown(39)) {
-    horizontalAcceleration = horizontalAcceleration * -1;
+  // Check if the released key is 'A'
+  if (key === "39") {
+    console.log(true);
   }
 }
-
 function draw() {
   background(17, 7, 7, 77); // Slight transparency
   translate(width / 2, (3 * height) / 4);
 
-  if (keyIsDown(39) && !keyIsDown(37)) {
-    horizontalY += Math.pow(horizontalSpeed, 2);
+  //Continue rotating because its space
+  if ((keyIsDown(39) || keyIsDown(68)) && !(keyIsDown(37) || keyIsDown(65))) {
+    horizontalY += Math.pow(horizontalSpeed + 1, 2);
     horizontalSpeed += horizontalAcceleration;
     lastKey = 39;
-  } else if (keyIsDown(37) && !keyIsDown(39)) {
-    horizontalY += Math.pow(horizontalSpeed, 2);
+  } else if (
+    (keyIsDown(37) || keyIsDown(65)) &&
+    !(keyIsDown(39) && keyIsDown(68))
+  ) {
+    horizontalY += Math.pow(horizontalSpeed + 1, 2);
     horizontalSpeed -= horizontalAcceleration;
     lastKey = 37;
   }
@@ -116,8 +119,22 @@ function draw() {
   //   lastKey = null;
   // }
 
+  //Display text on a circular path for extra points
+  //Rocket rotates based on direction of travel
+
+  if (lastKey == 39) {
+    for (let i = 0; i < 900; i++) {
+      horizontalSpeed -= Math.pow(horizontalAcceleration, 0.5 + 1 / i);
+    }
+    lastKey = 0;
+  } else if (lastKey == 37) {
+    for (let i = 0; i < 900; i++) {
+      horizontalSpeed += Math.pow(horizontalAcceleration, 0.5 + 1 / i);
+    }
+    lastKey = 0;
+  }
   push();
-  rotate(horizontalSpeed * 1.3);
+  rotate(horizontalSpeed * 1.5);
   // Display and update each star
   for (let star of stars) {
     star.show();
