@@ -75,12 +75,6 @@ function drawRocket() {
   translate(0, -height / 1.6);
   let f = 11.17;
 
-  push();
-
-  fill(255);
-  ellipse(0, -29, 758 / 9, 758 / 9);
-  pop();
-
   for (let i = 2; i < 10; i++) {
     f = 11.17 / Math.pow(i, -1);
     fill(0, 0);
@@ -88,6 +82,13 @@ function drawRocket() {
     ellipse(0, 0, 758 / 9 - f, 758 / f - f);
   }
 
+  //Bad solution for clip
+  push();
+  noStroke();
+  fill(bgCol);
+  ellipse(0, 9, 758 / 9, 758 / 50);
+  ellipse(0, 39, 758 / 10, 758 / 9);
+  pop();
   pop();
 }
 function keyReleased() {
