@@ -67,18 +67,27 @@ function drawMoon() {
   pop();
 }
 
+//Cover bottom use it as flame, possibly have it depend on fuel use.
 function drawRocket() {
   push();
-  noStroke();
-  ellipse(0, height / 9 - 9 / Math.pow(12, -1), height / 10);
-  ellipse(0, height / 9 - 9 / Math.pow(16, -1), height / 10, height / 6);
+  stroke(fillCol);
+  fill(bgCol);
+  translate(0, -height / 1.6);
+  let f = 11.17;
+
+  push();
+
+  fill(255);
+  ellipse(0, -29, 758 / 9, 758 / 9);
+  pop();
 
   for (let i = 2; i < 10; i++) {
-    let f = 9 / Math.pow(i, -1);
+    f = 11.17 / Math.pow(i, -1);
     fill(0, 0);
-    ellipse(0, 0, height / 9 - f, height / f - f * 2.9);
-    ellipse(0, 0, height / 9 - f, height / f - f);
+    ellipse(0, 0, 758 / 9 - f, 758 / f - f * 1.5);
+    ellipse(0, 0, 758 / 9 - f, 758 / f - f);
   }
+
   pop();
 }
 function keyReleased() {
@@ -91,6 +100,9 @@ function draw() {
   background(17, 7, 7, 77); // Slight transparency
   translate(width / 2, (3 * height) / 4);
 
+  drawRocket();
+
+  //Change double key logic
   //Continue rotating because its space
   if ((keyIsDown(39) || keyIsDown(68)) && !(keyIsDown(37) || keyIsDown(65))) {
     horizontalY += Math.pow(horizontalSpeed + 1, 2);
@@ -122,17 +134,19 @@ function draw() {
   //Display text on a circular path for extra points
   //Rocket rotates based on direction of travel
 
-  if (lastKey == 39) {
-    for (let i = 0; i < 900; i++) {
-      horizontalSpeed -= Math.pow(horizontalAcceleration, 0.5 + 1 / i);
-    }
-    lastKey = 0;
-  } else if (lastKey == 37) {
-    for (let i = 0; i < 900; i++) {
-      horizontalSpeed += Math.pow(horizontalAcceleration, 0.5 + 1 / i);
-    }
-    lastKey = 0;
-  }
+  // if (lastKey == 39) {
+  //   for (let i = 0; i < 50; i++) {
+  //     horizontalY += horizontalSpeed/i;
+  //     horizontalSpeed -= horizontalAcceleration;
+  //   }
+  //   lastKey = 0;
+  // } else if (lastKey == 37) {
+  //   for (let i = frameCount; i+12000< frameCount;) {
+  //     horizontalY += horizontalSpeed/i;
+  //     horizontalSpeed += horizontalAcceleration;
+  //   }
+  //   lastKey = 0;
+  // }
   push();
   rotate(horizontalSpeed * 1.5);
   // Display and update each star
