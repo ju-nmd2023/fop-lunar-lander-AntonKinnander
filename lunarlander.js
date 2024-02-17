@@ -82,14 +82,10 @@ function drawRocket() {
   pop();
 }
 
-function keyReleased(){
-let key;
-if (keyIsDown(39) || keyIsDown(37)){
-horizontalAcceleration = horizontalAcceleration*-1;
-
-}
-
-
+function keyReleased() {
+  if (keyIsDown(39)) {
+    horizontalAcceleration = horizontalAcceleration * -1;
+  }
 }
 
 function draw() {
@@ -97,15 +93,28 @@ function draw() {
   translate(width / 2, (3 * height) / 4);
 
   if (keyIsDown(39) && !keyIsDown(37)) {
-    horizontalY += horizontalSpeed;
+    horizontalY += Math.pow(horizontalSpeed, 2);
     horizontalSpeed += horizontalAcceleration;
+    lastKey = 39;
   } else if (keyIsDown(37) && !keyIsDown(39)) {
-    horizontalY += horizontalSpeed;
-    horizontalSpeed += horizontalAcceleration;
+    horizontalY += Math.pow(horizontalSpeed, 2);
+    horizontalSpeed -= horizontalAcceleration;
+    lastKey = 37;
   }
-  if () {
-    horizontalAcceleration = horizontalAcceleration * -1;
-  }
+  // if ((lastKey = 39)) {
+  //   if (horizontalSpeed>0)   {
+  //     horizontalY += horizontalSpeed;
+  //     horizontalSpeed -= horizontalAcceleration;
+  //   }
+  //   lastKey = null;
+
+  // } else if ((lastKey = 37)) {
+  //   if (horizontalSpeed<0) {
+  //     horizontalY += horizontalSpeed;
+  //     horizontalSpeed += horizontalAcceleration/10;
+  //   }
+  //   lastKey = null;
+  // }
 
   push();
   rotate(horizontalSpeed * 1.3);
