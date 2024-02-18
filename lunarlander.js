@@ -11,14 +11,17 @@ let stars = [];
 let starsDrawn = false;
 
 let rotation = 0;
-let horizontalSpeed = Math.random() * PI * 2;
+let horizontalSpeed = Math.random() * Math.PI * 2;
 let horizontalAcceleration = 0.02;
 let lastKey;
+
+let runState = "startScreen";
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noStroke();
   background(bgCol);
+  textAlign(CENTER);
   for (let i = 0; i < 700; i++) {
     stars.push(new Star());
   }
@@ -45,10 +48,17 @@ class Star {
   }
 }
 
+function displayStars() {
+  // Display and update each star
+  for (let star of stars) {
+    star.show();
+  }
+}
+
 function drawMoon() {
   push();
   let d = 752;
-  scale((2.2 * width) / d);
+  scale((2.2 * height) / d);
   strokeWeight(0.5);
   stroke(fillCol);
   //No stars on the moon
@@ -71,7 +81,7 @@ function drawMoon() {
 function drawRocket(y) {
   push();
   let d = 752;
-  scale((0.7 * width) / d);
+  scale((0.7 * height) / d);
   stroke(fillCol);
   fill(bgCol);
   translate(0, -height / 1.6 + y);
@@ -93,6 +103,11 @@ function drawRocket(y) {
   pop();
   pop();
 }
+
+function winLoseHandler(y) {
+  let groundY = 0;
+}
+
 function keyReleased() {
   // Check if the released key is 'A'
   if (key === "39") {
@@ -111,68 +126,43 @@ function draw() {
 
   //Change double key logic
   //Continue rotating because its space
-  if ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) {
-    rotation += Math.pow(horizontalSpeed + 1, 2);
-    horizontalSpeed += horizontalAcceleration;
-    lastKey = 39;
-  } else if (
-    (keyIsDown(37) && !keyIsDown(39)) ||
-    (keyIsDown(65) && !keyIsDown(68))
-  ) {
-    rotation += Math.pow(horizontalSpeed + 1, 2);
-    horizontalSpeed -= horizontalAcceleration;
-    lastKey = 37;
-  }
 
-  if (keyIsDown(38) || keyIsDown(87)) {
-    verticalDistance += verticalSpeed;
-    verticalSpeed += verticalAcceleration;
+  //Run the game
+  if (runState == "running") {
+    if (
+      (keyIsDown(39) && !keyIsDown(37)) ||
+      (keyIsDown(68) && !keyIsDown(65))
+    ) {
+      rotation += Math.pow(horizontalSpeed + 1, 2);
+      horizontalSpeed += horizontalAcceleration;
+      lastKey = 39;
+    } else if (
+      (keyIsDown(37) && !keyIsDown(39)) ||
+      (keyIsDown(65) && !keyIsDown(68))
+    ) {
+      rotation += Math.pow(horizontalSpeed + 1, 2);
+      horizontalSpeed -= horizontalAcceleration;
+      lastKey = 37;
+    }
+
+    if (keyIsDown(38) || keyIsDown(87)) {
+      verticalDistance += verticalSpeed;
+      verticalSpeed += verticalAcceleration;
+    } else {
+      verticalDistance += verticalSpeed;
+      verticalSpeed += gravity;
+    }
+    drawRocket(verticalDistance);
+    push();
+    rotate(horizontalSpeed * 1.5);
+    displayStars();
+    pop();
+    rotate(horizontalSpeed);
+    drawMoon(); // Draw the moon
   } else {
-    verticalDistance += verticalSpeed;
-    verticalSpeed += gravity;
+    displayStars();
+    if (keyIsDown(32)) {
+      runState = "running";
+    }
   }
-  drawRocket(verticalDistance);
-
-  //mOVE THE ROCKET
-
-  // if ((lastKey = 39)) {
-  //   if (horizontalSpeed>0)   {
-  //     horizontalY += horizontalSpeed;
-  //     horizontalSpeed -= horizontalAcceleration;
-  //   }
-  //   lastKey = null;
-
-  // } else if ((lastKey = 37)) {
-  //   if (horizontalSpeed<0) {
-  //     horizontalY += horizontalSpeed;
-  //     horizontalSpeed += horizontalAcceleration/10;
-  //   }
-  //   lastKey = null;
-  // }
-
-  //Display text on a circular path for extra points
-  //Rocket rotates based on direction of travel
-
-  // if (lastKey == 39) {
-  //   for (let i = 0; i < 50; i++) {
-  //     horizontalY += horizontalSpeed/i;
-  //     horizontalSpeed -= horizontalAcceleration;
-  //   }
-  //   lastKey = 0;
-  // } else if (lastKey == 37) {
-  //   for (let i = frameCount; i+12000< frameCount;) {
-  //     horizontalY += horizontalSpeed/i;
-  //     horizontalSpeed += horizontalAcceleration;
-  //   }
-  //   lastKey = 0;
-  // }
-  push();
-  rotate(horizontalSpeed * 1.5);
-  // Display and update each star
-  for (let star of stars) {
-    star.show();
-  }
-  pop();
-  rotate(horizontalSpeed);
-  drawMoon(); // Draw the moon
 }
