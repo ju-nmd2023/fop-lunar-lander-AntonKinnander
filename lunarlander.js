@@ -23,9 +23,11 @@ let runState = "startScreen";
 
 let header;
 let subHeader;
+let title;
 function preload() {
   header = loadFont("assets/fonts/Aber-Mono-Bold.otf");
   subHeader = loadFont("assets/fonts/Aber-Mono-Light.otf");
+  title = loadFont("assets/fonts/BTE-Sporty.otf");
 }
 
 function setup() {
@@ -38,11 +40,19 @@ function setup() {
 }
 
 function drawStartScreen() {
-  const headerSize = width / 47;
-  const subHeaderSize = width / 47;
+  const headerSize = height / 80 + width / 80;
+  const subHeaderSize = height / 94 + width / 94;
+  push();
+  textSize(headerSize);
+  textFont(title);
+  text("MARTIAL LANDER", 0, -height / 2.11);
+  pop();
+
+  push();
   textFont(subHeader);
   textSize(subHeaderSize);
-  text("press [space] to start", 0, 0);
+  text("Press [space] to start", 0, 0);
+  pop();
 }
 
 function drawHud() {
@@ -60,11 +70,11 @@ function drawHud() {
   push();
   textAlign(LEFT);
   //the font has < > mixed up
-  text("[>3 >3 >3]", -width / 2.4, -height / 1.55);
+  text("[>3 >3 >3]", -width / 2.2, -height / 1.47);
   pop();
   push();
   textAlign(RIGHT);
-  text("Fuel:74%", width / 2.4, -height / 1.55);
+  text("Fuel:100%", width / 2.2, -height / 1.47);
   pop();
   pop();
 }
@@ -125,7 +135,7 @@ function drawMoon() {
 function drawRocket(y) {
   scale((0.7 * height) / d);
   push();
-  translate(0, -height / 1.6 + y);
+  translate(0, -height / 1.9 + y);
 
   stroke(fillCol);
   fill(bgCol);
@@ -188,7 +198,7 @@ function drawRocket(y) {
 
 //add fuel
 function winLossHandler(y, v) {
-  let groundY = height / 2.2;
+  let groundY = height / 2.79;
   let maxVelocity = 3;
 
   if (y > groundY) {
@@ -206,7 +216,8 @@ const verticalAcceleration = -0.03;
 const gravity = 0.07;
 
 function draw() {
-  background(17, 7, 7, 77); // Slight transparency
+  drawingContext.shadowBlur = 32;
+  background(17, 7, 7, 77); // Slight transparency for glow trails
   translate(width / 2, (3 * height) / 4);
   //Change double key logic
   //Continue rotating because its space
@@ -246,8 +257,11 @@ function draw() {
     rotate(horizontalSpeed);
     drawMoon(); // Draw the moon
   } else {
-    drawStartScreen();
     drawStars();
+
+    drawRocket(0);
+    drawStartScreen();
+
     if (keyIsDown(32)) {
       runState = "running";
     }
