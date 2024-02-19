@@ -1,6 +1,8 @@
 let zoom = 500;
 const fillCol = [208, 103, 82];
 let bgCol = [17, 7, 7];
+//the height of p5 canvas display while i was writing haunts this program
+let d = 752;
 
 const radius = Math.sqrt(0.5);
 const starSize = 0.004;
@@ -57,8 +59,7 @@ function displayStars() {
 
 function drawMoon() {
   push();
-  let d = 752;
-  scale((2.2 * height) / d);
+  scale((3 * height) / d);
   strokeWeight(0.5);
   stroke(fillCol);
   //No stars on the moon
@@ -69,7 +70,7 @@ function drawMoon() {
   pop();
   fill(0, 0);
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 1; i < 3; i++) {
     let f = 9 / Math.pow(i, -2);
     ellipse(0, 0, d / 9 - f, d / f - f * 2.9);
     ellipse(0, 0, d / 9 - f, d / f - f);
@@ -79,19 +80,20 @@ function drawMoon() {
 
 //Cover bottom use it as flame, possibly have it depend on fuel use.
 function drawRocket(y) {
-  push();
-  let d = 752;
   scale((0.7 * height) / d);
+  push();
+  translate(0, -height / 1.6 + y);
+
   stroke(fillCol);
   fill(bgCol);
-  translate(0, -height / 1.6 + y);
+
   let f = 11.17;
 
   for (let i = 2; i < 10; i++) {
     f = 11.17 / Math.pow(i, -1);
     fill(0, 0);
-    ellipse(0, 0, 758 / 9 - f, 758 / f - f * 1.5);
-    ellipse(0, 0, 758 / 9 - f, 758 / f - f);
+    ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
+    ellipse(0, 0, d / 9 - f, d / f - f);
   }
 
   //Bad solution for clip
@@ -103,20 +105,48 @@ function drawRocket(y) {
   pop();
   pop();
 }
+// function drawRocket(y) {
+//   push();
 
-function winLoseHandler(y) {
-  let groundY = 0;
-}
+//   scale((0.7 * height) / d);
+//   stroke(fillCol);
+//   fill(bgCol);
+//   translate(0, -height / 1.6 + y);
+//   let f = 11.17;
 
-function keyReleased() {
-  // Check if the released key is 'A'
-  if (key === "39") {
-    console.log(true);
+//   for (let i = 2; i < 10; i++) {
+//     f = 11.17 / Math.pow(i, -1);
+//     fill(0, 0);
+//     ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
+//     ellipse(0, 0, d / 9 - f, d / f - f);
+//   }
+
+//   //Bad solution for clip
+//   push();
+//   noStroke();
+//   fill(bgCol);
+//   ellipse(0, 9, 758 / 9, 758 / 50);
+//   ellipse(0, 39, 758 / 10, 758 / 9);
+//   pop();
+//   pop();
+// }
+
+//add fuel
+function winLossHandler(y, v) {
+  let groundY = height / 2.2;
+  let maxVelocity = 3;
+
+  if (y > groundY) {
+    if (v < maxVelocity) {
+      runState = "startScreen";
+    } else {
+      runState = "startScreen";
+    }
   }
 }
 
 let verticalDistance = 0;
-let verticalSpeed = 0;
+let verticalVelocity = 0;
 const verticalAcceleration = -0.03;
 const gravity = 0.07;
 
@@ -146,12 +176,13 @@ function draw() {
     }
 
     if (keyIsDown(38) || keyIsDown(87)) {
-      verticalDistance += verticalSpeed;
-      verticalSpeed += verticalAcceleration;
+      verticalDistance += verticalVelocity;
+      verticalVelocity += verticalAcceleration;
     } else {
-      verticalDistance += verticalSpeed;
-      verticalSpeed += gravity;
+      verticalDistance += verticalVelocity;
+      verticalVelocity += gravity;
     }
+    winLossHandler(verticalDistance, verticalVelocity);
     drawRocket(verticalDistance);
     push();
     rotate(horizontalSpeed * 1.5);
