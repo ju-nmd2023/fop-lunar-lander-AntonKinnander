@@ -42,6 +42,7 @@ function setup() {
 function drawStartScreen() {
   const headerSize = height / 80 + width / 80;
   const subHeaderSize = height / 94 + width / 94;
+  const paragraphSize = height / 150 + width / 150;
   push();
   textSize(headerSize);
   textFont(title);
@@ -53,11 +54,21 @@ function drawStartScreen() {
   textSize(subHeaderSize);
   text("Press [space] to start", 0, 0);
   pop();
+
+  push();
+  textFont(header);
+  textSize(paragraphSize);
+  text("Controls:", 0, -height / 5);
+  pop();
+  push();
+  textFont(subHeader);
+  textSize(paragraphSize);
+  text("[←][↑][→] or [W][A][D]", 0, -height / 6);
+  pop();
 }
 
 function drawHud() {
-  const headerSize = width / 47;
-  const subHeaderSize = width / 47;
+  const subHeaderSize = height / 94 + width / 94;
   // push();
   // textFont(subHeader);
   // textSize(headerSize);
@@ -74,7 +85,7 @@ function drawHud() {
   pop();
   push();
   textAlign(RIGHT);
-  text("Fuel:100%", width / 2.2, -height / 1.47);
+  text("Fuel: 100%", width / 2.2, -height / 1.47);
   pop();
   pop();
 }
@@ -216,7 +227,6 @@ const verticalAcceleration = -0.03;
 const gravity = 0.07;
 
 function draw() {
-  drawingContext.shadowBlur = 32;
   background(17, 7, 7, 77); // Slight transparency for glow trails
   translate(width / 2, (3 * height) / 4);
   //Change double key logic
