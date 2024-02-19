@@ -19,16 +19,55 @@ let lastKey;
 
 let runState = "startScreen";
 
+//p5 reference https://p5js.org/reference/#/p5/loadFont
+
+let header;
+let subHeader;
+function preload() {
+  header = loadFont("assets/fonts/Aber-Mono-Bold.otf");
+  subHeader = loadFont("assets/fonts/Aber-Mono-Light.otf");
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noStroke();
   background(bgCol);
   textAlign(CENTER);
-  for (let i = 0; i < 700; i++) {
-    stars.push(new Star());
-  }
+  //Load fonts
+  generateStars();
 }
 
+function drawStartScreen() {
+  const headerSize = width / 47;
+  const subHeaderSize = width / 47;
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  text("press [space] to start", 0, 0);
+}
+
+function drawHud() {
+  const headerSize = width / 47;
+  const subHeaderSize = width / 47;
+  // push();
+  // textFont(subHeader);
+  // textSize(headerSize);
+  // text("Press [spacebar] to start ", 0, 0);
+  // pop();
+
+  push();
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  push();
+  textAlign(LEFT);
+  //the font has < > mixed up
+  text("[>3 >3 >3]", -width / 2.4, -height / 1.55);
+  pop();
+  push();
+  textAlign(RIGHT);
+  text("Fuel:74%", width / 2.4, -height / 1.55);
+  pop();
+  pop();
+}
 class Star {
   constructor() {
     this.x = Math.random() * 2 * width - width;
@@ -50,10 +89,14 @@ class Star {
   }
 }
 
-function displayStars() {
-  // Display and update each star
+function drawStars() {
   for (let star of stars) {
     star.show();
+  }
+}
+function generateStars() {
+  for (let i = 0; i < 450; i++) {
+    stars.push(new Star());
   }
 }
 
@@ -88,6 +131,11 @@ function drawRocket(y) {
   fill(bgCol);
 
   let f = 11.17;
+  push();
+  //Wipe the smear / screenburn with background color
+  noStroke();
+  ellipse(0, -127, 758 / 10, 758 / 50);
+  pop();
 
   for (let i = 2; i < 10; i++) {
     f = 11.17 / Math.pow(i, -1);
@@ -99,9 +147,16 @@ function drawRocket(y) {
   //Bad solution for clip
   push();
   noStroke();
+
   fill(bgCol);
   ellipse(0, 9, 758 / 9, 758 / 50);
   ellipse(0, 39, 758 / 10, 758 / 9);
+  //  fill(0, 255, 0);
+  //mask for the flame
+  ellipse(0, 5, 758 / 20, 758 / 70);
+  push();
+  // drawFlame();
+  pop();
   pop();
   pop();
 }
@@ -153,12 +208,12 @@ const gravity = 0.07;
 function draw() {
   background(17, 7, 7, 77); // Slight transparency
   translate(width / 2, (3 * height) / 4);
-
   //Change double key logic
   //Continue rotating because its space
 
   //Run the game
   if (runState == "running") {
+    drawHud();
     if (
       (keyIsDown(39) && !keyIsDown(37)) ||
       (keyIsDown(68) && !keyIsDown(65))
@@ -186,12 +241,13 @@ function draw() {
     drawRocket(verticalDistance);
     push();
     rotate(horizontalSpeed * 1.5);
-    displayStars();
+    drawStars();
     pop();
     rotate(horizontalSpeed);
     drawMoon(); // Draw the moon
   } else {
-    displayStars();
+    drawStartScreen();
+    drawStars();
     if (keyIsDown(32)) {
       runState = "running";
     }
