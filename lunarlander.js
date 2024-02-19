@@ -67,6 +67,45 @@ function drawStartScreen() {
   pop();
 }
 
+let fuel = 1;
+const fuelBurnRate = -0.001;
+function calculateFuel() {
+  if (
+    keyIsDown(39) ||
+    keyIsDown(37) ||
+    keyIsDown(68) ||
+    keyIsDown(65) ||
+    keyIsDown(38) ||
+    keyIsDown(87)
+  ) {
+    fuel += fuelBurnRate;
+  }
+  return fuel;
+}
+
+function controlRocket() {
+  if ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) {
+    rotation += Math.pow(horizontalSpeed + 1, 2);
+    horizontalSpeed += horizontalAcceleration;
+    lastKey = 39;
+  } else if (
+    (keyIsDown(37) && !keyIsDown(39)) ||
+    (keyIsDown(65) && !keyIsDown(68))
+  ) {
+    rotation += Math.pow(horizontalSpeed + 1, 2);
+    horizontalSpeed -= horizontalAcceleration;
+    lastKey = 37;
+  }
+
+  if (keyIsDown(38) || keyIsDown(87)) {
+    verticalDistance += verticalVelocity;
+    verticalVelocity += verticalAcceleration;
+  } else {
+    verticalDistance += verticalVelocity;
+    verticalVelocity += gravity;
+  }
+}
+
 function drawHud() {
   const subHeaderSize = height / 94 + width / 94;
   // push();
@@ -85,7 +124,11 @@ function drawHud() {
   pop();
   push();
   textAlign(RIGHT);
-  text("Fuel: 100%", width / 2.2, -height / 1.47);
+  text(
+    "Fuel: " + Math.floor(calculateFuel() * 100) + "%",
+    width / 2.2,
+    -height / 1.47
+  );
   pop();
   pop();
 }
@@ -170,43 +213,29 @@ function drawRocket(y) {
   noStroke();
 
   fill(bgCol);
-  ellipse(0, 9, 758 / 9, 758 / 50);
-  ellipse(0, 39, 758 / 10, 758 / 9);
+  ellipse(0, 9, d / 9, d / 50);
+  ellipse(0, 39, d / 10, d / 9);
   //  fill(0, 255, 0);
   //mask for the flame
+  push();
+  drawFlame();
+  pop();
   ellipse(0, 5, 758 / 20, 758 / 70);
   push();
-  // drawFlame();
+
   pop();
   pop();
   pop();
 }
-// function drawRocket(y) {
-//   push();
 
-//   scale((0.7 * height) / d);
-//   stroke(fillCol);
-//   fill(bgCol);
-//   translate(0, -height / 1.6 + y);
-//   let f = 11.17;
-
-//   for (let i = 2; i < 10; i++) {
-//     f = 11.17 / Math.pow(i, -1);
-//     fill(0, 0);
-//     ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
-//     ellipse(0, 0, d / 9 - f, d / f - f);
-//   }
-
-//   //Bad solution for clip
-//   push();
-//   noStroke();
-//   fill(bgCol);
-//   ellipse(0, 9, 758 / 9, 758 / 50);
-//   ellipse(0, 39, 758 / 10, 758 / 9);
-//   pop();
-//   pop();
-// }
-
+function drawFlame() {
+  for (let i = 2; i < 10; i++) {
+    f = 11.17 / Math.pow(i, -1);
+    fill(0, 0);
+    ellipse(0, 200, d / 9 - f, d / f - f * 1.5);
+    ellipse(0, 200, d / 9 - f, d / f - f);
+  }
+}
 //add fuel
 function winLossHandler(y, v) {
   let groundY = height / 2.79;
@@ -235,29 +264,7 @@ function draw() {
   //Run the game
   if (runState == "running") {
     drawHud();
-    if (
-      (keyIsDown(39) && !keyIsDown(37)) ||
-      (keyIsDown(68) && !keyIsDown(65))
-    ) {
-      rotation += Math.pow(horizontalSpeed + 1, 2);
-      horizontalSpeed += horizontalAcceleration;
-      lastKey = 39;
-    } else if (
-      (keyIsDown(37) && !keyIsDown(39)) ||
-      (keyIsDown(65) && !keyIsDown(68))
-    ) {
-      rotation += Math.pow(horizontalSpeed + 1, 2);
-      horizontalSpeed -= horizontalAcceleration;
-      lastKey = 37;
-    }
-
-    if (keyIsDown(38) || keyIsDown(87)) {
-      verticalDistance += verticalVelocity;
-      verticalVelocity += verticalAcceleration;
-    } else {
-      verticalDistance += verticalVelocity;
-      verticalVelocity += gravity;
-    }
+    controlRocket();
     winLossHandler(verticalDistance, verticalVelocity);
     drawRocket(verticalDistance);
     push();
