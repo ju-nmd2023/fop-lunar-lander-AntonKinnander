@@ -17,6 +17,9 @@ let horizontalSpeed = Math.random() * Math.PI * 2;
 let horizontalAcceleration = 0.02;
 let lastKey;
 
+let lives = 2; //3 lives
+const livesDisplay = ["[>3      ]", "[>3 >3   ]", "[>3 >3 >3]"];
+
 let runState = "startScreen";
 
 //p5 reference https://p5js.org/reference/#/p5/loadFont
@@ -24,6 +27,11 @@ let runState = "startScreen";
 let header;
 let subHeader;
 let title;
+
+let headerSize;
+let subHeaderSize;
+let paragraphSize;
+
 function preload() {
   header = loadFont("assets/fonts/Aber-Mono-Bold.otf");
   subHeader = loadFont("assets/fonts/Aber-Mono-Light.otf");
@@ -37,12 +45,12 @@ function setup() {
   textAlign(CENTER);
   //Load fonts
   generateStars();
+  headerSize = height / 80 + width / 80;
+  subHeaderSize = height / 94 + width / 94;
+  paragraphSize = height / 150 + width / 150;
 }
 
 function drawStartScreen() {
-  const headerSize = height / 80 + width / 80;
-  const subHeaderSize = height / 94 + width / 94;
-  const paragraphSize = height / 150 + width / 150;
   push();
   textSize(headerSize);
   textFont(title);
@@ -66,9 +74,89 @@ function drawStartScreen() {
   text("[←][↑][→] or [W][A][D]", 0, -height / 6);
   pop();
 }
+let livesGrammar = "lives";
+function drawWinScreen() {
+  if (lives < 1) {
+    livesGrammar = "life";
+  } else {
+    livesGrammar = "lives";
+  }
+  push();
+  textSize(headerSize * 2);
+  textFont(header);
+  text("YOU WON", 0, -height / 2.11);
+  pop();
+
+  push();
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  text(
+    "With " +
+      (lives + 1) +
+      " " +
+      livesGrammar +
+      " and " +
+      Math.floor(calculateFuel() * 100) +
+      "% fuel remaining.",
+    0,
+    -height / 2.5
+  );
+  pop();
+  push();
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  text("Press [space] to play again", 0, 0);
+  pop();
+}
+function drawLoseScreen() {
+  if (lives < 2) {
+    livesGrammar = "life";
+  } else {
+    livesGrammar = "lives";
+  }
+  push();
+  textSize(headerSize * 2);
+  textFont(header);
+  text("YOU LOST", 0, -height / 2.11);
+  pop();
+
+  push();
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  text(
+    "You have " + lives + " " + livesGrammar + " remaining.",
+    0,
+    -height / 2.5
+  );
+  pop();
+
+  push();
+  textFont(subHeader);
+  textSize(subHeaderSize);
+  text("Press [space] to try again", 0, 0);
+  pop();
+}
+function resetGame() {
+  if (runState == "win" || runState == "lost") {
+    rotation = Math.random() * Math.PI * 2;
+    horizontalSpeed = 0;
+    verticalDistance = 0;
+    verticalVelocity = 0;
+    fuel = 1;
+  }
+  if (runState == "win") {
+    lives = 2;
+  }
+  if (runState == "lost") {
+    lives -= 1;
+    if (lives < 0) {
+      lives = 2;
+    }
+  }
+}
 
 let fuel = 1;
-const fuelBurnRate = -0.001;
+const fuelBurnRate = -0.002;
 function calculateFuel() {
   if (
     keyIsDown(39) ||
@@ -80,24 +168,29 @@ function calculateFuel() {
   ) {
     fuel += fuelBurnRate;
   }
-  return fuel;
+  return max(fuel, 0);
 }
 
 function controlRocket() {
-  if ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) {
-    rotation += Math.pow(horizontalSpeed + 1, 2);
-    horizontalSpeed += horizontalAcceleration;
-    lastKey = 39;
-  } else if (
-    (keyIsDown(37) && !keyIsDown(39)) ||
-    (keyIsDown(65) && !keyIsDown(68))
+  if (
+    ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) &&
+    calculateFuel() > 0
   ) {
     rotation += Math.pow(horizontalSpeed + 1, 2);
     horizontalSpeed -= horizontalAcceleration;
-    lastKey = 37;
+  } else if (
+    (keyIsDown(37) && !keyIsDown(39)) ||
+    (keyIsDown(65) && !keyIsDown(68) && calculateFuel() > 0)
+  ) {
+    rotation += Math.pow(horizontalSpeed + 1, 2);
+    horizontalSpeed += horizontalAcceleration;
   }
 
-  if (keyIsDown(38) || keyIsDown(87)) {
+  if (!keyIsDown(37) && !keyIsDown(39) && !keyIsDown(65) && !keyIsDown(68)) {
+    rotation += horizontalSpeed;
+  }
+
+  if ((keyIsDown(38) || keyIsDown(87)) && calculateFuel() > 0) {
     verticalDistance += verticalVelocity;
     verticalVelocity += verticalAcceleration;
   } else {
@@ -107,20 +200,13 @@ function controlRocket() {
 }
 
 function drawHud() {
-  const subHeaderSize = height / 94 + width / 94;
-  // push();
-  // textFont(subHeader);
-  // textSize(headerSize);
-  // text("Press [spacebar] to start ", 0, 0);
-  // pop();
-
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
   push();
   textAlign(LEFT);
   //the font has < > mixed up
-  text("[>3 >3 >3]", -width / 2.2, -height / 1.47);
+  text(livesDisplay[lives], -width / 2.2, -height / 1.47);
   pop();
   push();
   textAlign(RIGHT);
@@ -230,22 +316,22 @@ function drawRocket(y) {
 
 function drawFlame() {
   for (let i = 2; i < 10; i++) {
-    f = 11.17 / Math.pow(i, -1);
+    let f = 11.17 / Math.pow(i, -1);
     fill(0, 0);
     ellipse(0, 200, d / 9 - f, d / f - f * 1.5);
     ellipse(0, 200, d / 9 - f, d / f - f);
   }
 }
 //add fuel
-function winLossHandler(y, v) {
+function runStateHandler(y, v) {
   let groundY = height / 2.79;
-  let maxVelocity = 3;
+  let maxVelocity = 1;
 
   if (y > groundY) {
     if (v < maxVelocity) {
-      runState = "startScreen";
+      runState = "win";
     } else {
-      runState = "startScreen";
+      runState = "lost";
     }
   }
 }
@@ -265,7 +351,7 @@ function draw() {
   if (runState == "running") {
     drawHud();
     controlRocket();
-    winLossHandler(verticalDistance, verticalVelocity);
+    runStateHandler(verticalDistance, verticalVelocity);
     drawRocket(verticalDistance);
     push();
     rotate(horizontalSpeed * 1.5);
@@ -273,14 +359,19 @@ function draw() {
     pop();
     rotate(horizontalSpeed);
     drawMoon(); // Draw the moon
+  } else if (runState == "win") {
+    drawStars();
+    drawWinScreen();
+  } else if (runState == "lost") {
+    drawStars();
+    drawLoseScreen();
   } else {
     drawStars();
-
     drawRocket(0);
     drawStartScreen();
-
-    if (keyIsDown(32)) {
-      runState = "running";
-    }
+  }
+  if (keyIsDown(32) && runState != "running") {
+    resetGame();
+    runState = "running";
   }
 }
