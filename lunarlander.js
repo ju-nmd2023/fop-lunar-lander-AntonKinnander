@@ -4,6 +4,8 @@ let bgCol = [17, 7, 7];
 //the height of p5 canvas display while i was writing haunts this program
 let d = 752;
 
+let fuelValue;
+
 const radius = Math.sqrt(0.5);
 const starSize = 0.004;
 const PHI = (1 + Math.sqrt(5)) / 2;
@@ -107,13 +109,14 @@ function drawWinScreen() {
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
+
   text(
     "With " +
       (lives + 1) +
       " " +
       livesGrammar +
       " and " +
-      Math.floor(calculateFuel() * 100) +
+      +fuelValue +
       "% fuel remaining.",
     0,
     -height / 2.5
@@ -374,9 +377,10 @@ function draw() {
   translate(width / 2, (3 * height) / 4);
   //Change double key logic
   //Continue rotating because its space
-
   //Run the game
   if (runState == "running") {
+    //Hotfix so you cant change fuel value on the win screen (this value only increases when game is running)
+    fuelValue = Math.floor(calculateFuel() * 100);
     drawHud();
     controlRocket();
     runStateHandler(verticalDistance, verticalVelocity);
