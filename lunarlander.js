@@ -357,7 +357,7 @@ function runStateHandler(y, v) {
   if (y > groundY) {
     if (v < maxVelocity) {
       runState = "win";
-      score = Math.floor(Math.pow(Math.random() * (score + 40), 2.6));
+      score = Math.floor(Math.pow(Math.random() * (score + 100), 1.33));
     } else {
       runState = "lost";
     }
