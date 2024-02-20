@@ -75,6 +75,7 @@ function drawStartScreen() {
   pop();
 }
 let livesGrammar = "lives";
+
 function drawWinScreen() {
   if (lives < 1) {
     livesGrammar = "life";
@@ -85,6 +86,22 @@ function drawWinScreen() {
   textSize(headerSize * 2);
   textFont(header);
   text("YOU WON", 0, -height / 2.11);
+  pop();
+
+  push();
+  textFont(subHeader);
+  textSize(paragraphSize);
+  text("Score:", 0, -height / 3.1);
+  pop();
+
+  push();
+  textSize(headerSize * 2);
+  textFont(header);
+  // for (let i = 0; i < score; i++) {
+  //   text(i, 0, -height / 4);
+  // }
+  //Display the score, its just a random number, increases exponentially every win to give a sense of progression
+  text(score, 0, -height / 4);
   pop();
 
   push();
@@ -144,6 +161,7 @@ function drawLoseScreen() {
   text("Press [space] to try again", 0, 0);
   pop();
 }
+
 function resetGame() {
   if (runState == "win" || runState == "lost") {
     rotation = Math.random() * Math.PI * 2;
@@ -330,7 +348,8 @@ function drawFlame() {
     ellipse(0, 200, d / 9 - f, d / f - f);
   }
 }
-//add fuel
+//add a score value, the value will never reset and increase everytime the playerwins, to give a sense of progression
+let score = 0;
 function runStateHandler(y, v) {
   let groundY = height / 2.79;
   let maxVelocity = 1;
@@ -338,6 +357,7 @@ function runStateHandler(y, v) {
   if (y > groundY) {
     if (v < maxVelocity) {
       runState = "win";
+      score = Math.floor(Math.pow(Math.random() * (score + 40), 2.6));
     } else {
       runState = "lost";
     }
