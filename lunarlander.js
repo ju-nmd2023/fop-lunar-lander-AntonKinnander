@@ -79,6 +79,8 @@ function drawStartScreen() {
 let livesGrammar = "lives";
 
 function drawWinScreen() {
+  fuelValue = Math.floor(calculateFuel() * 100);
+
   if (lives < 1) {
     livesGrammar = "life";
   } else {
@@ -145,7 +147,7 @@ function drawLoseScreen() {
   textSize(subHeaderSize);
   if (lives < 1) {
     text(
-      "No lives remain but it doesnt matter they will be replenished :))",
+      "No lives remain but it doesnt matter \n they will be replenished :))",
       0,
       -height / 2.5
     );
@@ -188,12 +190,13 @@ let fuel = 1;
 const fuelBurnRate = -0.002;
 function calculateFuel() {
   if (
-    keyIsDown(39) ||
-    keyIsDown(37) ||
-    keyIsDown(68) ||
-    keyIsDown(65) ||
-    keyIsDown(38) ||
-    keyIsDown(87)
+    (keyIsDown(39) ||
+      keyIsDown(37) ||
+      keyIsDown(68) ||
+      keyIsDown(65) ||
+      keyIsDown(38) ||
+      keyIsDown(87)) &&
+    runState == "running"
   ) {
     fuel += fuelBurnRate;
   }
@@ -380,7 +383,7 @@ function draw() {
   //Run the game
   if (runState == "running") {
     //Hotfix so you cant change fuel value on the win screen (this value only increases when game is running)
-    fuelValue = Math.floor(calculateFuel() * 100);
+
     drawHud();
     controlRocket();
     runStateHandler(verticalDistance, verticalVelocity);
