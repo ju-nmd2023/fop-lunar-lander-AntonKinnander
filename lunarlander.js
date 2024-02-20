@@ -123,11 +123,19 @@ function drawLoseScreen() {
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
-  text(
-    "You have " + lives + " " + livesGrammar + " remaining.",
-    0,
-    -height / 2.5
-  );
+  if (lives < 1) {
+    text(
+      "No lives remain but it doesnt matter they will be replenished :))",
+      0,
+      -height / 2.5
+    );
+  } else {
+    text(
+      "You have " + lives + " " + livesGrammar + " remaining.",
+      0,
+      -height / 2.5
+    );
+  }
   pop();
 
   push();
