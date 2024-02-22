@@ -16,7 +16,7 @@ let stars = [];
 let starsDrawn = false;
 
 let rotation = Math.random() * Math.PI * 2;
-let horizontalSpeed = 0;
+let horizontalVelocity = (Math.random() - 0.5) * 0.06;
 let horizontalAcceleration = 0.002;
 let lastKey;
 
@@ -171,9 +171,10 @@ function drawLoseScreen() {
 function resetGame() {
   if (runState == "win" || runState == "lost") {
     rotation = Math.random() * Math.PI * 2;
-    horizontalSpeed = 0;
+    horizontalVelocity = (Math.random() - 0.5) * 0.06;
     verticalDistance = 0;
     verticalVelocity = 0;
+    flameStrength = 3;
     fuel = 1;
   }
   if (runState == "win") {
@@ -209,19 +210,23 @@ function controlRocket() {
     ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) &&
     calculateFuel() > 0
   ) {
-    rotation += horizontalSpeed;
-    horizontalSpeed -= horizontalAcceleration;
+    //Math.max for lower speed limit / left
+    horizontalVelocity = Math.max(
+      horizontalVelocity - horizontalAcceleration,
+      -0.04
+    );
   } else if (
     (keyIsDown(37) && !keyIsDown(39)) ||
     (keyIsDown(65) && !keyIsDown(68) && calculateFuel() > 0)
   ) {
-    rotation += horizontalSpeed;
-    horizontalSpeed += horizontalAcceleration;
+    //Math.min for upper speed limit / right
+    horizontalVelocity = Math.min(
+      horizontalVelocity + horizontalAcceleration,
+      0.04
+    );
   }
 
-  if (!keyIsDown(37) && !keyIsDown(39) && !keyIsDown(65) && !keyIsDown(68)) {
-    rotation += horizontalSpeed;
-  }
+  rotation += horizontalVelocity;
 
   if ((keyIsDown(38) || keyIsDown(87)) && calculateFuel() > 0) {
     verticalDistance += verticalVelocity;
@@ -230,7 +235,6 @@ function controlRocket() {
     verticalDistance += verticalVelocity;
     verticalVelocity += gravity;
   }
-  console.log(rotation);
 }
 
 function drawHud() {
@@ -318,7 +322,8 @@ function drawRocket(y) {
   push();
   //Wipe the smear / screenburn with background color
   noStroke();
-  ellipse(0, -127, d / 10, d / 50);
+  fill(bgCol);
+  ellipse(0, -16, d / 9, d / 6);
   pop();
 
   for (let i = 2; i < 10; i++) {
@@ -328,13 +333,14 @@ function drawRocket(y) {
     ellipse(0, 0, d / 9 - f, d / f - f);
   }
 
-  //Bad solution for clip
+  //Bad solution instead of clip
   push();
   noStroke();
 
   fill(bgCol);
   ellipse(0, 9, d / 9, d / 50);
   ellipse(0, 39, d / 10, d / 9);
+
   //  fill(0, 255, 0);
   //mask for the flame
   push();
@@ -352,23 +358,26 @@ function drawRocket(y) {
 let flameStrength = 3;
 function drawFlame() {
   push();
-  scale((0.5 * height) / d);
-  translate(0, height - height / 1.1);
-  stroke(fillCol);
+  translate(0, height / 110);
+  stroke(17, 7, 7, 100);
   noFill();
-  let f = 8;
+  let f = 4;
 
   if ((keyIsDown(38) || keyIsDown(87)) && fuel > 0) {
-    flameStrength += 0.28;
+    flameStrength += 0.47;
     // decrease flame when fuel is almost out but not lower than three
   } else if (flameStrength > 3 || fuel < 0.1) {
-    flameStrength -= 0.7;
+    flameStrength -= 1.2;
   }
 
-  for (let i = 3; i < Math.min(Math.floor(flameStrength), 7); i++) {
-    f = 11.17 / Math.pow(i, -1.5);
-    ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
-    ellipse(0, 0, d / 9 - f, d / f - f);
+  for (
+    let i = 3;
+    i < Math.min(Math.floor(flameStrength * (Math.random() / 3 + 0.95)), 9);
+    i++
+  ) {
+    f = 4.17 / Math.pow(i, -1.5);
+    ellipse(0, 0, d / 11 - f, d / f - f * 1.5);
+    ellipse(0, 0, d / 11 - f, d / f - f);
   }
   pop();
 }
@@ -380,7 +389,7 @@ function runStateHandler(y, v) {
   let maxVelocity = 1;
 
   if (y > groundY) {
-    if (v < maxVelocity) {
+    if (v < maxVelocity && Math.abs(horizontalVelocity) < 0.02) {
       runState = "win";
       score = Math.floor(Math.pow(Math.random() * (score + 100), 1.33));
     } else {
