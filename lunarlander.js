@@ -1,7 +1,8 @@
 let zoom = 500;
 const fillCol = [208, 103, 82];
 let bgCol = [17, 7, 7];
-//the height of p5 canvas display while i was writing haunts this program
+
+//the height of p5Cannvas display while i was writing haunts this program
 let d = 752;
 
 let fuelValue;
@@ -14,9 +15,9 @@ let vpFactor;
 let stars = [];
 let starsDrawn = false;
 
-let rotation = 0;
-let horizontalSpeed = Math.random() * Math.PI * 2;
-let horizontalAcceleration = 0.02;
+let rotation = Math.random() * Math.PI * 2;
+let horizontalSpeed = 0;
+let horizontalAcceleration = 0.002;
 let lastKey;
 
 let lives = 2; //3 lives
@@ -118,7 +119,7 @@ function drawWinScreen() {
       " " +
       livesGrammar +
       " and " +
-      +fuelValue +
+      fuelValue +
       "% fuel remaining.",
     0,
     -height / 2.5
@@ -208,13 +209,13 @@ function controlRocket() {
     ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) &&
     calculateFuel() > 0
   ) {
-    rotation += Math.pow(horizontalSpeed + 1, 2);
+    rotation += horizontalSpeed;
     horizontalSpeed -= horizontalAcceleration;
   } else if (
     (keyIsDown(37) && !keyIsDown(39)) ||
     (keyIsDown(65) && !keyIsDown(68) && calculateFuel() > 0)
   ) {
-    rotation += Math.pow(horizontalSpeed + 1, 2);
+    rotation += horizontalSpeed;
     horizontalSpeed += horizontalAcceleration;
   }
 
@@ -229,6 +230,7 @@ function controlRocket() {
     verticalDistance += verticalVelocity;
     verticalVelocity += gravity;
   }
+  console.log(rotation);
 }
 
 function drawHud() {
@@ -316,7 +318,7 @@ function drawRocket(y) {
   push();
   //Wipe the smear / screenburn with background color
   noStroke();
-  ellipse(0, -127, 758 / 10, 758 / 50);
+  ellipse(0, -127, d / 10, d / 50);
   pop();
 
   for (let i = 2; i < 10; i++) {
@@ -336,24 +338,41 @@ function drawRocket(y) {
   //  fill(0, 255, 0);
   //mask for the flame
   push();
+
   drawFlame();
+
   pop();
-  ellipse(0, 5, 758 / 20, 758 / 70);
+  ellipse(0, 5, d / 20, d / 70);
   push();
 
   pop();
   pop();
   pop();
 }
-
+let flameStrength = 3;
 function drawFlame() {
-  for (let i = 2; i < 10; i++) {
-    let f = 11.17 / Math.pow(i, -1);
-    fill(0, 0);
-    ellipse(0, 200, d / 9 - f, d / f - f * 1.5);
-    ellipse(0, 200, d / 9 - f, d / f - f);
+  push();
+  scale((0.5 * height) / d);
+  translate(0, height - height / 1.1);
+  stroke(fillCol);
+  noFill();
+  let f = 8;
+
+  if ((keyIsDown(38) || keyIsDown(87)) && fuel > 0) {
+    flameStrength += 0.28;
+    // decrease flame when fuel is almost out but not lower than three
+  } else if (flameStrength > 3 || fuel < 0.1) {
+    flameStrength -= 0.7;
   }
+
+  for (let i = 3; i < Math.min(Math.floor(flameStrength), 7); i++) {
+    f = 11.17 / Math.pow(i, -1.5);
+    ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
+    ellipse(0, 0, d / 9 - f, d / f - f);
+  }
+  pop();
 }
+
 //add a score value, the value will never reset and increase everytime the playerwins, to give a sense of progression
 let score = 0;
 function runStateHandler(y, v) {
@@ -376,7 +395,7 @@ const verticalAcceleration = -0.03;
 const gravity = 0.07;
 
 function draw() {
-  background(17, 7, 7, 77); // Slight transparency for glow trails
+  background(17, 7, 7, 170); // Slight transparency for glow trails
   translate(width / 2, (3 * height) / 4);
   //Change double key logic
   //Continue rotating because its space
@@ -389,10 +408,10 @@ function draw() {
     runStateHandler(verticalDistance, verticalVelocity);
     drawRocket(verticalDistance);
     push();
-    rotate(horizontalSpeed * 1.5);
+    rotate(rotation);
     drawStars();
     pop();
-    rotate(horizontalSpeed);
+    rotate(rotation);
     drawMoon(); // Draw the moon
   } else if (runState == "win") {
     drawStars();
@@ -404,6 +423,8 @@ function draw() {
     drawStars();
     drawRocket(0);
     drawStartScreen();
+
+    // drawRocket(0);
   }
   if (keyIsDown(32) && runState != "running") {
     resetGame();

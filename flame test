@@ -1,0 +1,46 @@
+const d = 758;
+
+function drawRocket(y) {
+  scale((0.7 * height) / d);
+  push();
+  translate(0, -height / 1.9 + y);
+
+  stroke(255);
+  fill(0);
+
+  let f = 11.17;
+  push();
+  //Wipe the smear / screenburn with background color
+  noStroke();
+  ellipse(0, -127, d / 10, d / 50);
+  pop();
+
+  for (let i = 2; i < 10; i++) {
+    f = 11.17 / Math.pow(i, -1);
+    fill(0, 0);
+    ellipse(0, 0, d / 9 - f, d / f - f * 1.5);
+    ellipse(0, 0, d / 9 - f, d / f - f);
+  }
+
+  //Bad solution for clip
+  push();
+  noStroke();
+
+  fill(0);
+  ellipse(0, 9, d / 9, d / 50);
+  ellipse(0, 39, d / 10, d / 9);
+  //  fill(0, 255, 0);
+  //mask for the flame
+  push();
+  pop();
+  ellipse(0, 5, d / 20, d / 70);
+  push();
+
+  pop();
+  pop();
+  pop();
+}
+
+function draw() {
+  drawRocket(300);
+}
