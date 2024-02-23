@@ -359,7 +359,7 @@ let flameStrength = 3;
 function drawFlame() {
   push();
   translate(0, height / 110);
-  stroke(17, 7, 7, 100);
+  stroke(208, 103, 82, 150 * (Math.random() + 0.9 / 1.9));
   noFill();
   let f = 4;
 
@@ -389,7 +389,7 @@ function runStateHandler(y, v) {
   let maxVelocity = 1;
 
   if (y > groundY) {
-    if (v < maxVelocity && Math.abs(horizontalVelocity) < 0.02) {
+    if (v < maxVelocity && Math.abs(horizontalVelocity) < 0.005) {
       runState = "win";
       score = Math.floor(Math.pow(Math.random() * (score + 100), 1.33));
     } else {
@@ -417,7 +417,8 @@ function draw() {
     runStateHandler(verticalDistance, verticalVelocity);
     drawRocket(verticalDistance);
     push();
-    rotate(rotation);
+    //Background rotates faster for depth of field effect
+    rotate(rotation * 1.2);
     drawStars();
     pop();
     rotate(rotation);
