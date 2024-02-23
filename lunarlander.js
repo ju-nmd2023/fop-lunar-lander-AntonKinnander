@@ -15,8 +15,9 @@ const PHI = (1 + Math.sqrt(5)) / 2;
 let stars = [];
 
 let rotation = Math.random() * Math.PI * 2;
-let horizontalVelocity = (Math.random() - 0.5) * 0.06;
-let horizontalAcceleration = 0.002;
+//random rotation speed
+let horizontalVelocity = (Math.random() - 0.5) * 0.04;
+let horizontalAcceleration = 0.00017;
 
 let lives = 2; //3 lives 0,1,2
 //Display values for lives remaining. works nicely because font is monospace
@@ -169,7 +170,8 @@ function drawLoseScreen() {
 function resetGame() {
   if (runState == "win" || runState == "lost") {
     rotation = Math.random() * Math.PI * 2;
-    horizontalVelocity = (Math.random() - 0.5) * 0.06;
+    //random rotation speed
+    horizontalVelocity = (Math.random() - 0.5) * 0.04;
     verticalDistance = 0;
     verticalVelocity = 0;
     flameStrength = 3;
@@ -184,6 +186,7 @@ function resetGame() {
       lives = 2;
     }
   }
+  runState = "running";
 }
 
 let fuel = 1;
@@ -367,7 +370,7 @@ function drawFlame() {
   noFill();
   let f = 4;
 
-  if ((keyIsDown(38) || keyIsDown(87)) && fuel > 0) {
+  if ((keyIsDown(38) || keyIsDown(87) || keyIsDown(40)) && fuel > 0) {
     flameStrength += 0.47;
     // decrease flame when fuel is almost out but not lower than three
   } else if (flameStrength > 3 || fuel < 0.1) {
@@ -388,12 +391,11 @@ function drawFlame() {
 
 //add a score value, the value will never reset and increase everytime the playerwins, to give a sense of progression
 let score = 0;
-function runStateHandler(y, v) {
+function runStateHandler(y, hv, vv) {
   let groundY = height / 2.79;
-  let maxVelocity = 1;
-
   if (y > groundY) {
-    if (v < maxVelocity && Math.abs(horizontalVelocity) < 0.005) {
+    //win conditions, if down velocity <1 and horizontal velocity < 0.005, need to land gently
+    if (vv < 1 && Math.abs(hv) < 0.005) {
       runState = "win";
       score = Math.floor(Math.pow(Math.random() * (score + 100), 1.33));
     } else {
@@ -410,15 +412,12 @@ const gravity = 0.07;
 function draw() {
   background(17, 7, 7, 170); // Slight transparency for glow trails
   translate(width / 2, (3 * height) / 4);
-  //Change double key logic
   //Continue rotating because its space
   //Run the game
   if (runState == "running") {
-    //Hotfix so you cant change fuel value on the win screen (this value only increases when game is running)
-
     drawHud();
     controlRocket();
-    runStateHandler(verticalDistance, verticalVelocity);
+    runStateHandler(verticalDistance, horizontalVelocity, verticalVelocity);
     drawRocket(verticalDistance);
     push();
     //Background rotates faster for depth of field effect
@@ -442,6 +441,5 @@ function draw() {
   }
   if (keyIsDown(32) && runState != "running") {
     resetGame();
-    runState = "running";
   }
 }
