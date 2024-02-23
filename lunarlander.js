@@ -3,6 +3,7 @@ const fillCol = [208, 103, 82];
 let bgCol = [17, 7, 7];
 
 //the height of p5Cannvas display while i was writing haunts this program
+//used for scaling when drawing moon and
 let d = 752;
 
 let fuelValue;
@@ -10,23 +11,20 @@ let fuelValue;
 const radius = Math.sqrt(0.5);
 const starSize = 0.004;
 const PHI = (1 + Math.sqrt(5)) / 2;
-let vpFactor;
 
 let stars = [];
-let starsDrawn = false;
 
 let rotation = Math.random() * Math.PI * 2;
 let horizontalVelocity = (Math.random() - 0.5) * 0.06;
 let horizontalAcceleration = 0.002;
-let lastKey;
 
-let lives = 2; //3 lives
+let lives = 2; //3 lives 0,1,2
+//Display values for lives remaining. works nicely because font is monospace
 const livesDisplay = ["[>3      ]", "[>3 >3   ]", "[>3 >3 >3]"];
 
 let runState = "startScreen";
 
-//p5 reference https://p5js.org/reference/#/p5/loadFont
-
+//font variables
 let header;
 let subHeader;
 let title;
@@ -197,6 +195,7 @@ function calculateFuel() {
       keyIsDown(68) ||
       keyIsDown(65) ||
       keyIsDown(38) ||
+      keyIsDown(40) ||
       keyIsDown(87)) &&
     runState == "running"
   ) {
@@ -228,7 +227,10 @@ function controlRocket() {
 
   rotation += horizontalVelocity;
 
-  if ((keyIsDown(38) || keyIsDown(87)) && calculateFuel() > 0) {
+  if (
+    (keyIsDown(38) || keyIsDown(87) || keyIsDown(40)) &&
+    calculateFuel() > 0
+  ) {
     verticalDistance += verticalVelocity;
     verticalVelocity += verticalAcceleration;
   } else {
@@ -256,22 +258,23 @@ function drawHud() {
   pop();
   pop();
 }
+
+//Generative starry background inspired by garrits weekly challenge and this video but its been rewritten alot to have it in a way where i can make it rotate >> https://www.youtube.com/watch?v=RrSOv9FH6uo
+
 class Star {
   constructor() {
     this.x = Math.random() * 2 * width - width;
     this.y = Math.random() * 2 * height - height;
-    this.z = Math.random() * width;
-    this.alpha = Math.random();
+    this.r = Math.random() * width;
   }
 
   show() {
     fill(fillCol);
     noStroke();
-    let x = map(this.x / this.z, 0, 1, 0, width);
-    let y = map(this.y / this.z, 0, 1, 0, height);
-    let r = map(this.z, 0, width, 7, 0);
-    this.alpha += 0.04;
-    fill(fillCol, Math.abs(Math.sin(this.alpha)) * 255);
+    let x = map(this.x / this.r, 0, 1, 0, width);
+    let y = map(this.y / this.r, 0, 1, 0, height);
+    let r = map(this.r, 0, width, 7, 0);
+    fill(fillCol);
 
     ellipse(x, y, r, r);
   }
@@ -317,8 +320,9 @@ function drawRocket(y) {
 
   stroke(fillCol);
   fill(bgCol);
+  //variable for factor to draw the ellipses that make up the rocket
+  let f;
 
-  let f = 11.17;
   push();
   //Wipe the smear / screenburn with background color
   noStroke();
