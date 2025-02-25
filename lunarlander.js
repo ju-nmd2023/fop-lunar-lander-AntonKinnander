@@ -21,7 +21,13 @@ let horizontalAcceleration = 0.00017;
 
 let lives = 2; //3 lives 0,1,2
 //Display values for lives remaining. works nicely because font is monospace
-const livesDisplay = ["[>3      ]", "[>3 >3   ]", "[>3 >3 >3]"];
+const livesDisplay = ["[>3      ]", "[>3 >3   ]", "[>3 >3 >3]"];
+
+// Add touch control variables
+let isTouchingLeft = false;
+let isTouchingRight = false;
+let isTouchingMiddle = false;
+let isTouchingScreen = false;
 
 let runState = "startScreen";
 
@@ -50,6 +56,96 @@ function setup() {
   headerSize = height / 80 + width / 80;
   subHeaderSize = height / 94 + width / 94;
   paragraphSize = height / 150 + width / 150;
+  
+  // Add touch event listeners for mobile controls
+  canvas = document.querySelector('canvas');
+  canvas.addEventListener('touchstart', handleTouchStart);
+  canvas.addEventListener('touchend', handleTouchEnd);
+  canvas.addEventListener('touchmove', handleTouchMove);
+
+  // Add this function to prevent default touch behavior (like scrolling)
+  document.addEventListener('touchmove', function(event) {
+    if (event.target.nodeName === 'CANVAS') {
+      event.preventDefault();
+    }
+  }, { passive: false });
+}
+
+// Handle touch start events
+function handleTouchStart(event) {
+  event.preventDefault();
+  
+  // For space bar functionality on mobile (starting/restarting game)
+  if (runState != "running") {
+    resetGame();
+    return;
+  }
+  
+  const touch = event.touches[0];
+  const x = touch.clientX;
+  
+  isTouchingScreen = true;
+  
+  // Calculate screen thirds for deadzone
+  const leftThird = windowWidth / 3;
+  const rightThird = windowWidth * 2 / 3;
+  
+  // Determine which zone is being touched
+  if (x < leftThird) {
+    // Left third of screen
+    isTouchingLeft = true;
+    isTouchingRight = false;
+    isTouchingMiddle = false;
+  } else if (x >= rightThird) {
+    // Right third of screen
+    isTouchingLeft = false;
+    isTouchingRight = true;
+    isTouchingMiddle = false;
+  } else {
+    // Middle third (deadzone for steering)
+    isTouchingLeft = false;
+    isTouchingRight = false;
+    isTouchingMiddle = true;
+  }
+}
+
+// Handle touch end events
+function handleTouchEnd(event) {
+  event.preventDefault();
+  isTouchingLeft = false;
+  isTouchingRight = false;
+  isTouchingMiddle = false;
+  isTouchingScreen = false;
+}
+
+// Handle touch move events
+function handleTouchMove(event) {
+  event.preventDefault();
+  
+  const touch = event.touches[0];
+  const x = touch.clientX;
+  
+  // Calculate screen thirds for deadzone
+  const leftThird = windowWidth / 3;
+  const rightThird = windowWidth * 2 / 3;
+  
+  // Update which zone is being touched
+  if (x < leftThird) {
+    // Left third of screen
+    isTouchingLeft = true;
+    isTouchingRight = false;
+    isTouchingMiddle = false;
+  } else if (x >= rightThird) {
+    // Right third of screen
+    isTouchingLeft = false;
+    isTouchingRight = true;
+    isTouchingMiddle = false;
+  } else {
+    // Middle third (deadzone for steering)
+    isTouchingLeft = false;
+    isTouchingRight = false;
+    isTouchingMiddle = true;
+  }
 }
 
 function drawStartScreen() {
@@ -62,7 +158,7 @@ function drawStartScreen() {
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
-  text("Press [space] to start", 0, 0);
+  text("Press [space] or tap screen to start", 0, 0);
   pop();
 
   push();
@@ -74,6 +170,7 @@ function drawStartScreen() {
   textFont(subHeader);
   textSize(paragraphSize);
   text("[←][↑][→] or [W][A][D]", 0, -height / 6);
+  text("On mobile: Tap sides to steer, middle or any touch for thrust", 0, -height / 7);
   pop();
 }
 let livesGrammar = "lives";
@@ -127,7 +224,7 @@ function drawWinScreen() {
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
-  text("Press [space] to play again", 0, 0);
+  text("Press [space] or tap screen to play again", 0, 0);
   pop();
 }
 function drawLoseScreen() {
@@ -163,7 +260,7 @@ function drawLoseScreen() {
   push();
   textFont(subHeader);
   textSize(subHeaderSize);
-  text("Press [space] to try again", 0, 0);
+  text("Press [space] or tap screen to try again", 0, 0);
   pop();
 }
 
@@ -199,7 +296,10 @@ function calculateFuel() {
       keyIsDown(65) ||
       keyIsDown(38) ||
       keyIsDown(40) ||
-      keyIsDown(87)) &&
+      keyIsDown(87) ||
+      isTouchingLeft ||
+      isTouchingRight ||
+      isTouchingMiddle) &&
     runState == "running"
   ) {
     fuel += fuelBurnRate;
@@ -208,8 +308,11 @@ function calculateFuel() {
 }
 
 function controlRocket() {
+  // Right controls (right arrow, D key, or touch right side)
   if (
-    ((keyIsDown(39) && !keyIsDown(37)) || (keyIsDown(68) && !keyIsDown(65))) &&
+    ((keyIsDown(39) && !keyIsDown(37)) || 
+     (keyIsDown(68) && !keyIsDown(65)) ||
+     (isTouchingRight && !isTouchingLeft && !isTouchingMiddle)) &&
     calculateFuel() > 0
   ) {
     //Math.max for lower speed limit / left
@@ -217,9 +320,12 @@ function controlRocket() {
       horizontalVelocity - horizontalAcceleration,
       -0.04
     );
+  // Left controls (left arrow, A key, or touch left side)
   } else if (
-    (keyIsDown(37) && !keyIsDown(39)) ||
-    (keyIsDown(65) && !keyIsDown(68) && calculateFuel() > 0)
+    ((keyIsDown(37) && !keyIsDown(39)) || 
+     (keyIsDown(65) && !keyIsDown(68)) ||
+     (isTouchingLeft && !isTouchingRight && !isTouchingMiddle)) &&
+    calculateFuel() > 0
   ) {
     //Math.min for upper speed limit / right
     horizontalVelocity = Math.min(
@@ -230,8 +336,12 @@ function controlRocket() {
 
   rotation += horizontalVelocity;
 
+  // Vertical thrust (up arrow, W key, D key, or any touch including middle)
   if (
-    (keyIsDown(38) || keyIsDown(87) || keyIsDown(40)) &&
+    (keyIsDown(38) || 
+     keyIsDown(87) || 
+     keyIsDown(40) || 
+     isTouchingScreen) &&
     calculateFuel() > 0
   ) {
     verticalDistance += verticalVelocity;
@@ -370,7 +480,7 @@ function drawFlame() {
   noFill();
   let f = 4;
 
-  if ((keyIsDown(38) || keyIsDown(87) || keyIsDown(40)) && fuel > 0) {
+  if ((keyIsDown(38) || keyIsDown(87) || keyIsDown(40) || isTouchingScreen) && fuel > 0) {
     flameStrength += 0.47;
     // decrease flame when fuel is almost out but not lower than three
   } else if (flameStrength > 3 || fuel < 0.1) {
@@ -442,4 +552,14 @@ function draw() {
   if (keyIsDown(32) && runState != "running") {
     resetGame();
   }
+}
+
+// Also update the windowResized function to maintain the canvas size
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  
+  // Recalculate font sizes
+  headerSize = height / 80 + width / 80;
+  subHeaderSize = height / 94 + width / 94;
+  paragraphSize = height / 150 + width / 150;
 }
