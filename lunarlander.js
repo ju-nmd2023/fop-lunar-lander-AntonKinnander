@@ -170,7 +170,7 @@ function drawStartScreen() {
   textFont(subHeader);
   textSize(paragraphSize);
   text("[←][↑][→] or [W][A][D]", 0, -height / 6);
-  text("On mobile: Tap sides to steer, middle or any touch for thrust", 0, -height / 7);
+  text("Mobile: Tap for thrust, Tap sides to steer", 0, -height / 8);
   pop();
 }
 let livesGrammar = "lives";
